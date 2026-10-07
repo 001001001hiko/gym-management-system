@@ -5,6 +5,7 @@ import psycopg2
 import psycopg2.extras
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -15,11 +16,11 @@ app.secret_key = "gym-management-secret-key-2026"
 # DATABASE SETTINGS
 # =========================================================
 
-DB_HOST = "localhost"
-DB_NAME = "gym_management"
-DB_USER = "postgres"
-DB_PASSWORD = "8440"
-DB_PORT = "5432"
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_PORT = os.getenv("DB_PORT", "5432")
 
 
 def get_db():
