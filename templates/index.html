@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gym Management System</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <h2>GYM</h2>
+
+    <div class="admin-info">
+        <span>Logged in as</span>
+
+        <strong>
+            {{ session['username'] }}
+        </strong>
+    </div>
+
+    <a href="#dashboard">
+        Dashboard
+    </a>
+
+    <a href="/reports">
+        Reports
+    </a>
+
+    <a href="#search">
+        Search Student
+    </a>
+
+    <a href="#students">
+        Students
+    </a>
+
+    <a href="#trainers">
+        Trainers
+    </a>
+
+    <a href="#general">
+        General
+    </a>
+
+    <a href="#add-student">
+        Add Student
+    </a>
+
+    <a href="#add-trainer">
+        Add Trainer
+    </a>
+
+    <a href="#add-fee">
+        Add Fee
+    </a>
+
+    <a href="#expired">
+        Expired Fees
+    </a>
+
+    <a href="#inactive">
+        Inactive Students
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/change-username">
+        Change Username
+    </a>
+
+    <a href="/change-password">
+        Change Password
+    </a>
+
+    <a
+        href="/logout"
+        class="logout-link"
+    >
+        Logout
+    </a>
+
+</div>
+
+
+<div class="main">
+
+    <section id="dashboard">
+
+        <h1>
+            Gym Management System
+        </h1>
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h3>
+                    Total Students
+                </h3>
+
+                <strong>
+                    {{ students|length }}
+                </strong>
+
+            </div>
+
+            <div class="card green">
+
+                <h3>
+                    Paid
+                </h3>
+
+                <strong>
+                    {{ paid|length }}
+                </strong>
+
+            </div>
+
+            <div class="card red">
+
+                <h3>
+                    Expired
+                </h3>
+
+                <strong>
+                    {{ expired|length }}
+                </strong>
+
+            </div>
+
+            <div class="card orange">
+
+                <h3>
+                    No Payment
+                </h3>
+
+                <strong>
+                    {{ no_payment|length }}
+                </strong>
+
+            </div>
+
+            <div class="card purple">
+
+                <h3>
+                    Trainers
+                </h3>
+
+                <strong>
+                    {{ trainers|length }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="message">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <section id="search">
+
+        <h2>
+            Search Student & Payment History
+        </h2>
+
+        <form
+            method="GET"
+            action="/"
+        >
+
+            <input
+                type="text"
+                name="q"
+                placeholder="Enter student name..."
+                value="{{ search }}"
+                required
+            >
+
+            <button type="submit">
+                Search
+            </button>
+
+        </form>
+
+
+        {% if search %}
+
+            <h3>
+                Payment History
+            </h3>
+
+            {% if search_results %}
+
+                {% for payment in search_results %}
+
+                    <div class="payment-box">
+
+                        <div class="payment-title">
+
+                            <strong>
+                                {{ payment.first_name }}
+                                {{ payment.last_name }}
+                            </strong>
+
+                            <span>
+                                Trainer:
+                                {{ payment.trainer_name }}
+                            </span>
+
+                        </div>
+
+                        {% if payment.payment_id %}
+
+                        <form
+                            method="POST"
+                            action="/edit-fee/{{ payment.payment_id }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="search_name"
+                                value="{{ search }}"
+                            >
+
+                            <select
+                                name="month_id"
+                                required
+                            >
+
+                                {% for month in months %}
+
+                                <option
+                                    value="{{ month.month_id }}"
+                                    {% if payment.month_id == month.month_id %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    {{ month.month_name }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                            <input
+                                type="number"
+                                name="payment_year"
+                                value="{{ payment.payment_year }}"
+                                required
+                            >
+
+                            <input
+                                type="date"
+                                name="payment_date"
+                                value="{{ payment.payment_date }}"
+                                required
+                            >
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                name="fee_amount"
+                                value="{{ payment.fee_amount }}"
+                                required
+                            >
+
+                            <input
+                                type="date"
+                                name="expiry_date"
+                                value="{{ payment.expiry_date }}"
+                                required
+                            >
+
+                            <button type="submit">
+                                Save Fee Changes
+                            </button>
+
+                        </form>
+
+
+                        <form
+                            method="POST"
+                            action="/delete-fee/{{ payment.payment_id }}"
+                            onsubmit="return confirm('Delete this payment?');"
+                            class="delete-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="search_name"
+                                value="{{ search }}"
+                            >
+
+                            <button
+                                type="submit"
+                                class="danger"
+                            >
+                                Delete Fee
+                            </button>
+
+                        </form>
+
+                        {% else %}
+
+                            <p>
+                                No payment registered.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>
+                    No student found.
+                </p>
+
+            {% endif %}
+
+        {% endif %}
+
+    </section>
+
+
+    <section id="students">
+
+        <h2>
+            Students
+        </h2>
+
+        {% for student in students %}
+
+        <div class="edit-box">
+
+            <form
+                method="POST"
+                action="/edit-student/{{ student.member_id }}"
+            >
+
+                <strong>
+                    ID {{ student.member_id }}
+                </strong>
+
+                <input
+                    name="first_name"
+                    value="{{ student.first_name }}"
+                    required
+                >
+
+                <input
+                    name="last_name"
+                    value="{{ student.last_name }}"
+                    required
+                >
+
+                <input
+                    name="phone"
+                    value="{{ student.phone or '' }}"
+                    placeholder="Phone"
+                >
+
+                <select name="trainer_id">
+
+                    <option
+                        value="general"
+                        {% if student.trainer_id == None %}
+                        selected
+                        {% endif %}
+                    >
+                        General
+                    </option>
+
+                    {% for trainer in trainers %}
+
+                    <option
+                        value="{{ trainer.trainer_id }}"
+                        {% if student.trainer_id == trainer.trainer_id %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ trainer.first_name }}
+                        {{ trainer.last_name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <button type="submit">
+                    Save Changes
+                </button>
+
+            </form>
+
+
+            <form
+                method="POST"
+                action="/deactivate-student/{{ student.member_id }}"
+                onsubmit="return confirm('Deactivate this student?');"
+            >
+
+                <button
+                    type="submit"
+                    class="danger"
+                >
+                    Deactivate
+                </button>
+
+            </form>
+
+        </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <section id="trainers">
+
+        <h2>
+            Trainers
+        </h2>
+
+        {% for trainer in trainers %}
+
+        <div class="edit-box">
+
+            <form
+                method="POST"
+                action="/edit-trainer/{{ trainer.trainer_id }}"
+            >
+
+                <strong>
+                    Trainer ID {{ trainer.trainer_id }}
+                </strong>
+
+                <input
+                    name="first_name"
+                    value="{{ trainer.first_name }}"
+                    required
+                >
+
+                <input
+                    name="last_name"
+                    value="{{ trainer.last_name }}"
+                    required
+                >
+
+                <input
+                    name="phone"
+                    value="{{ trainer.phone or '' }}"
+                    placeholder="Phone"
+                >
+
+                <button type="submit">
+                    Save Trainer
+                </button>
+
+            </form>
+
+
+            <form
+                method="POST"
+                action="/delete-trainer/{{ trainer.trainer_id }}"
+                onsubmit="return confirm('Delete trainer? Students will move to General.');"
+            >
+
+                <button
+                    type="submit"
+                    class="danger"
+                >
+                    Delete Trainer
+                </button>
+
+            </form>
+
+        </div>
+
+
+        {% set fullname =
+            trainer.first_name
+            ~ ' '
+            ~ trainer.last_name
+        %}
+
+
+        <div class="trainer-students">
+
+            <h3>
+                {{ fullname }} - Students
+            </h3>
+
+            {% for student in trainer_groups[fullname] %}
+
+                <p>
+                    {{ student.first_name }}
+                    {{ student.last_name }}
+                </p>
+
+            {% else %}
+
+                <p>
+                    No students
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+        {% endfor %}
+
+    </section>
+
+
+    <section id="general">
+
+        <h2>
+            General Students
+        </h2>
+
+        <table>
+
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Phone</th>
+            </tr>
+
+            {% for student in general_students %}
+
+            <tr>
+
+                <td>
+                    {{ student.member_id }}
+                </td>
+
+                <td>
+                    {{ student.first_name }}
+                    {{ student.last_name }}
+                </td>
+
+                <td>
+                    {{ student.phone or '-' }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </section>
+
+
+    <section id="add-student">
+
+        <h2>
+            Add Student
+        </h2>
+
+        <form
+            method="POST"
+            action="/add-student"
+        >
+
+            <input
+                name="first_name"
+                placeholder="First Name"
+                required
+            >
+
+            <input
+                name="last_name"
+                placeholder="Last Name"
+                required
+            >
+
+            <input
+                name="phone"
+                placeholder="Phone Number"
+            >
+
+            <select name="trainer_id">
+
+                <option value="general">
+                    General - No Trainer
+                </option>
+
+                {% for trainer in trainers %}
+
+                <option value="{{ trainer.trainer_id }}">
+                    {{ trainer.first_name }}
+                    {{ trainer.last_name }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                Add Student
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section id="add-trainer">
+
+        <h2>
+            Add Trainer
+        </h2>
+
+        <form
+            method="POST"
+            action="/add-trainer"
+        >
+
+            <input
+                name="first_name"
+                placeholder="First Name"
+                required
+            >
+
+            <input
+                name="last_name"
+                placeholder="Last Name"
+                required
+            >
+
+            <input
+                name="phone"
+                placeholder="Phone"
+            >
+
+            <button type="submit">
+                Add Trainer
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section id="add-fee">
+
+        <h2>
+            Add Monthly Fee
+        </h2>
+
+        <form
+            method="POST"
+            action="/add-fee"
+        >
+
+            <select
+                name="member_id"
+                required
+            >
+
+                <option value="">
+                    Select Student
+                </option>
+
+                {% for student in students %}
+
+                <option value="{{ student.member_id }}">
+                    {{ student.first_name }}
+                    {{ student.last_name }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <select
+                name="month_id"
+                required
+            >
+
+                <option value="">
+                    Select Month
+                </option>
+
+                {% for month in months %}
+
+                <option value="{{ month.month_id }}">
+                    {{ month.month_name }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+
+            <input
+                type="number"
+                name="payment_year"
+                value="2026"
+                required
+            >
+
+            <input
+                type="date"
+                name="payment_date"
+                required
+            >
+
+            <input
+                type="number"
+                step="0.01"
+                name="fee_amount"
+                placeholder="Fee Amount"
+                required
+            >
+
+            <input
+                type="date"
+                name="expiry_date"
+                required
+            >
+
+            <button type="submit">
+                Save Fee
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section id="expired">
+
+        <h2>
+            Expired Fees
+        </h2>
+
+        <table>
+
+            <tr>
+                <th>Name</th>
+                <th>Trainer</th>
+                <th>Last Payment</th>
+                <th>Fee</th>
+                <th>Expired On</th>
+            </tr>
+
+            {% for student in expired %}
+
+            <tr>
+
+                <td>
+                    {{ student.first_name }}
+                    {{ student.last_name }}
+                </td>
+
+                <td>
+                    {{ student.trainer_name }}
+                </td>
+
+                <td>
+                    {{ student.payment_date }}
+                </td>
+
+                <td>
+                    {{ student.fee_amount }}
+                </td>
+
+                <td class="expired-text">
+                    {{ student.expiry_date }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </section>
+
+
+    <section id="inactive">
+
+        <h2>
+            Inactive Students
+        </h2>
+
+        {% for student in inactive_students %}
+
+        <div class="inactive-row">
+
+            <span>
+                {{ student.first_name }}
+                {{ student.last_name }}
+                —
+                {{ student.phone or '-' }}
+            </span>
+
+            <form
+                method="POST"
+                action="/activate-student/{{ student.member_id }}"
+            >
+
+                <button
+                    type="submit"
+                    class="success"
+                >
+                    Activate Again
+                </button>
+
+            </form>
+
+        </div>
+
+        {% else %}
+
+            <p>
+                No inactive students.
+            </p>
+
+        {% endfor %}
+
+    </section>
+
+</div>
+
+</body>
+</html>

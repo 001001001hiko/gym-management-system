@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Gym Reports
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+
+<div class="sidebar">
+
+    <h2>GYM</h2>
+
+    <div class="admin-info">
+
+        <span>
+            Logged in as
+        </span>
+
+        <strong>
+            {{ session['username'] }}
+        </strong>
+
+    </div>
+
+    <a href="/">
+        Dashboard
+    </a>
+
+    <a href="/reports">
+        Reports
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <a href="/change-username">
+        Change Username
+    </a>
+
+    <a href="/change-password">
+        Change Password
+    </a>
+
+    <a
+        href="/logout"
+        class="logout-link"
+    >
+        Logout
+    </a>
+
+</div>
+
+
+<div class="main">
+
+    <section>
+
+        <h1>
+            Gym Reports
+        </h1>
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h3>
+                    Active Students
+                </h3>
+
+                <strong>
+                    {{ total_students }}
+                </strong>
+
+            </div>
+
+
+            <div class="card purple">
+
+                <h3>
+                    Trainers
+                </h3>
+
+                <strong>
+                    {{ total_trainers }}
+                </strong>
+
+            </div>
+
+
+            <div class="card green">
+
+                <h3>
+                    Paid
+                </h3>
+
+                <strong>
+                    {{ paid }}
+                </strong>
+
+            </div>
+
+
+            <div class="card red">
+
+                <h3>
+                    Expired
+                </h3>
+
+                <strong>
+                    {{ expired }}
+                </strong>
+
+            </div>
+
+
+            <div class="card orange">
+
+                <h3>
+                    No Payment
+                </h3>
+
+                <strong>
+                    {{ no_payment }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section>
+
+        <h2>
+            Total Income
+        </h2>
+
+        <div class="income-box">
+            {{ total_income }} AFN
+        </div>
+
+    </section>
+
+
+    <section>
+
+        <h2>
+            Monthly Income Report
+        </h2>
+
+        <table>
+
+            <tr>
+
+                <th>
+                    Month
+                </th>
+
+                <th>
+                    Number of Payments
+                </th>
+
+                <th>
+                    Total Income
+                </th>
+
+            </tr>
+
+
+            {% for row in monthly_report %}
+
+            <tr>
+
+                <td>
+                    {{ row.month_name }}
+                </td>
+
+                <td>
+                    {{ row.payments_count }}
+                </td>
+
+                <td>
+                    {{ row.total_income }} AFN
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </section>
+
+</div>
+
+</body>
+
+</html>

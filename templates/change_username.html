@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Change Username
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body class="login-page">
+
+
+<div class="login-box">
+
+
+    <h1>
+        GYM
+    </h1>
+
+
+    <h2>
+        Change Username
+    </h2>
+<div class="admin-info">
+    <span>Logged in as</span>
+    <strong>{{ session['username'] }}</strong>
+</div>
+
+    <div class="current-admin">
+
+        Current Username:
+
+        <strong>
+
+            {{ session['username'] }}
+
+        </strong>
+
+    </div>
+
+
+    {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="login-error">
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+
+    <form
+        method="POST"
+        class="login-form"
+    >
+
+
+        <input
+            type="text"
+            name="new_username"
+            placeholder="New Username"
+            required
+        >
+
+
+        <input
+            type="password"
+            name="current_password"
+            placeholder="Current Password"
+            required
+        >
+
+
+        <button type="submit">
+
+            Change Username
+
+        </button>
+
+
+    </form>
+
+
+    <a
+        href="/"
+        class="back-link"
+    >
+
+        Back to Dashboard
+
+    </a>
+
+
+</div>
+
+
+</body>
+
+</html>
