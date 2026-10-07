@@ -1157,8 +1157,8 @@ def delete_fee(payment_id):
 # START
 # =========================================================
 
+create_default_admin()
+
+
 if __name__ == "__main__":
-
-    create_default_admin()
-
     app.run(debug=True)
